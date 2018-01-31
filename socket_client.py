@@ -55,20 +55,20 @@ class SocketClient:
         except Exception as ex:
             print(ex)
 
-    def http_get(self, file, close_conn=True):
+    def http_get(self, uri, close_conn=True):
         ''' HTTP GET method '''
         close = 'Connection: close\r\n'
         if not close_conn:
-            close = 'keep-alive'
+            close = 'Connection: keep-alive\r\n'
 
-        get_cmd = "GET {file} HTTP/1.1\r\nHost: {host}\r\n{close} \
+        get_cmd = "GET {uri} HTTP/1.1\r\nHost: {host}\r\n{close} \
         User-agent:Mozilla/5.0\r\n\r\n".format(
-            file=file, host=self.server, close=close)
+            uri=uri, host=self.server, close=close)
         print("Sent HTTP GET:\n {}".format(get_cmd))
         self.send(get_cmd)
         return self.receive()
 
-    def http_post(self, get_file, query={}):
+    def http_post(self, uri, query={}):
         ''' HTTP POST method '''
         content_type = "Content-Type: application/x-www-form-urlencoded"
         query_string = ""
@@ -79,7 +79,7 @@ class SocketClient:
         content_length = len(query_string)
 
         post_cmd = '''
-POST {get_file} HTTP/1.1
+POST {uri} HTTP/1.1
 Host: {host}
 User-agent: Mozilla/5.0
 Connection: keep-alive
@@ -88,7 +88,7 @@ Content-Length: {con_len}
 
 {query_string}
 
-'''.format(get_file=get_file, host=self.server, con_type=content_type, con_len=content_length,
+'''.format(uri=uri, host=self.server, con_type=content_type, con_len=content_length,
            query_string=query_string)
         print("Sent HTTP POST:\n {}".format(post_cmd))
         self.send(post_cmd)
@@ -129,7 +129,7 @@ python3 socket_client.py send localhost 1337 Hello there!
 
         # HTTP POST command
         if argv[1] == 'post':
-            sock.connect('myserver.com', 5001)
+            sock.connect('myserver.se', 5001)
             response = sock.http_post('/api/login', {'username': 'doe', 'password': 'password'})
             print("POST response:\n{}".format(response))
 
